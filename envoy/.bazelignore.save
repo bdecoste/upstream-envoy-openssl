@@ -1,0 +1,10 @@
+api
+examples/grpc-bridge/script
+@envoy//test/extensions/transport_sockets/tls
+@envoy//test/extensions/transport_sockets/tls/integration
+@envoy//test/extensions/transport_sockets/tls/test_data
+@envoy//test/extensions/filters/listener/tls_inspector
+test/extensions/transport_sockets/tls
+test/extensions/transport_sockets/tls/integration
+test/extensions/transport_sockets/tls/test_data
+test/extensions/filters/listener/tls_inspector
