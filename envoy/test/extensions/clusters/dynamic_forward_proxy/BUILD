@@ -16,12 +16,12 @@ envoy_package()
 envoy_extension_cc_test(
     name = "cluster_test",
     srcs = ["cluster_test.cc"],
-    data = ["//test/extensions/transport_sockets/tls/test_data:certs",],
+    data = ["//test/extensions/transport_sockets/tls/test_data:certs"],
     extension_name = "envoy.filters.http.dynamic_forward_proxy",
     deps = [
         "//source/extensions/clusters/dynamic_forward_proxy:cluster",
         "//source/extensions/transport_sockets/raw_buffer:config",
-        "@ssl//:tls_config",
+        "//source/extensions/transport_sockets/tls:config",
         "//test/common/upstream:utility_lib",
         "//test/extensions/common/dynamic_forward_proxy:mocks",
         "//test/mocks/protobuf:protobuf_mocks",

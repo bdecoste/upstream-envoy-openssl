@@ -199,7 +199,6 @@ const std::string TestEnvironment::unixDomainSocketDirectory() {
 
 std::string TestEnvironment::substitute(const std::string& str,
                                         Network::Address::IpVersion version) {
-std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! substitute " << TestEnvironment::runfilesDirectory() << " \n";
   const std::unordered_map<std::string, std::string> path_map = {
       {"test_tmpdir", TestEnvironment::temporaryDirectory()},
       {"test_udsdir", TestEnvironment::unixDomainSocketDirectory()},

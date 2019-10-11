@@ -253,6 +253,17 @@ envoy_cc_test(
 )
 
 envoy_cc_test(
+    name = "http_subset_lb_integration_test",
+    srcs = [
+        "http_subset_lb_integration_test.cc",
+    ],
+    deps = [
+        ":http_integration_lib",
+        "//test/common/upstream:utility_lib",
+    ],
+)
+
+envoy_cc_test(
     name = "http_timeout_integration_test",
     srcs = [
         "http_timeout_integration_test.cc",
@@ -443,7 +454,7 @@ envoy_cc_test_library(
         "//source/extensions/access_loggers/file:config",
         "//source/extensions/transport_sockets/raw_buffer:config",
         "//source/extensions/transport_sockets/tap:config",
-        "@ssl//:tls_config",
+        "//source/extensions/transport_sockets/tls:config",
         "//source/server:connection_handler_lib",
         "//source/server:hot_restart_nop_lib",
         "//source/server:listener_hooks_lib",
@@ -548,6 +559,9 @@ envoy_cc_test(
 envoy_cc_test(
     name = "stats_integration_test",
     srcs = ["stats_integration_test.cc"],
+    # The symbol table cluster memory tests take a while to run specially under tsan.
+    # Shard it to avoid test timeout.
+    shard_count = 2,
     deps = [
         ":integration_lib",
         "//source/common/memory:stats_lib",
@@ -674,10 +688,10 @@ envoy_cc_test(
         "//source/common/event:dispatcher_lib",
         "//source/common/network:connection_lib",
         "//source/common/network:utility_lib",
-        "@ssl//:tls_inspector_config",
-        "@ssl//:tls_config",
-        "@ssl//:tls_context_config_lib",
-        "@ssl//:tls_context_lib",
+        "//source/extensions/filters/listener/tls_inspector:config",
+        "//source/extensions/transport_sockets/tls:config",
+        "//source/extensions/transport_sockets/tls:context_config_lib",
+        "//source/extensions/transport_sockets/tls:context_lib",
         "//test/mocks/secret:secret_mocks",
         "//test/test_common:utility_lib",
     ],
@@ -699,10 +713,10 @@ envoy_cc_test(
         "//source/common/event:dispatcher_lib",
         "//source/common/network:connection_lib",
         "//source/common/network:utility_lib",
-        "@ssl//:tls_inspector_config",
-        "@ssl//:tls_config",
-        "@ssl//:tls_context_config_lib",
-        "@ssl//:tls_context_lib",
+        "//source/extensions/filters/listener/tls_inspector:config",
+        "//source/extensions/transport_sockets/tls:config",
+        "//source/extensions/transport_sockets/tls:context_config_lib",
+        "//source/extensions/transport_sockets/tls:context_lib",
         "//test/common/grpc:grpc_client_integration_lib",
         "//test/mocks/runtime:runtime_mocks",
         "//test/mocks/secret:secret_mocks",
@@ -726,9 +740,9 @@ envoy_cc_test(
         "//source/common/network:utility_lib",
         "//source/extensions/access_loggers/file:config",
         "//source/extensions/filters/network/tcp_proxy:config",
-        "@ssl//:tls_config",
-        "@ssl//:tls_context_config_lib",
-        "@ssl//:tls_context_lib",
+        "//source/extensions/transport_sockets/tls:config",
+        "//source/extensions/transport_sockets/tls:context_config_lib",
+        "//source/extensions/transport_sockets/tls:context_lib",
         "//test/mocks/runtime:runtime_mocks",
         "//test/mocks/secret:secret_mocks",
         "//test/test_common:utility_lib",
@@ -810,8 +824,8 @@ envoy_cc_test(
     deps = [
         ":http_integration_lib",
         "//source/common/http:header_map_lib",
-        "@ssl//:tls_inspector_config",
-        "@ssl//:tls_config",
+        "//source/extensions/filters/listener/tls_inspector:config",
+        "//source/extensions/transport_sockets/tls:config",
         "//test/mocks/server:server_mocks",
         "//test/test_common:utility_lib",
     ],

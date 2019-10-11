@@ -1,4 +1,4 @@
-#include "boringssl_compat/bssl.h"
+#include "bssl.h"
 
 #ifndef OPENSSL_IS_BORINGSSL
 

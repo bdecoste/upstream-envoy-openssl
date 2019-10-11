@@ -17,6 +17,13 @@ namespace Server {
 ConnectionHandlerImpl::ConnectionHandlerImpl(spdlog::logger& logger, Event::Dispatcher& dispatcher)
     : logger_(logger), dispatcher_(dispatcher), disable_listeners_(false) {}
 
+void ConnectionHandlerImpl::incNumConnections() { ++num_connections_; }
+
+void ConnectionHandlerImpl::decNumConnections() {
+  ASSERT(num_connections_ > 0);
+  --num_connections_;
+}
+
 void ConnectionHandlerImpl::addListener(Network::ListenerConfig& config) {
   Network::ConnectionHandler::ActiveListenerPtr listener;
   Network::Address::SocketType socket_type = config.socket().socketType();
@@ -158,7 +165,11 @@ ConnectionHandlerImpl::findActiveListenerByAddress(const Network::Address::Insta
 void ConnectionHandlerImpl::ActiveSocket::onTimeout() {
   listener_.stats_.downstream_pre_cx_timeout_.inc();
   ASSERT(inserted());
+  ENVOY_LOG_TO_LOGGER(listener_.parent_.logger_, debug, "listener filter times out after {} ms",
+                      listener_.listener_filters_timeout_.count());
+
   if (listener_.continue_on_listener_filters_timeout_) {
+    ENVOY_LOG_TO_LOGGER(listener_.parent_.logger_, debug, "fallback to default listener filter");
     newConnection();
   }
   unlink();

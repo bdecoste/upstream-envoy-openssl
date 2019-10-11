@@ -5,28 +5,27 @@
 #include "extensions/common/crypto/crypto_impl.h"
 
 #include "gtest/gtest.h"
-#include "openssl/evp.h"
 
 namespace Envoy {
 namespace Common {
 namespace Crypto {
 namespace {
 
-TEST(UtilityTest, DISABLED_TestSha256Digest) {
+TEST(UtilityTest, TestSha256Digest) {
   const Buffer::OwnedImpl buffer("test data");
   const auto digest = Utility::getSha256Digest(buffer);
   EXPECT_EQ("916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9",
             Hex::encode(digest));
 }
 
-TEST(UtilityTest, DISABLED_TestSha256DigestWithEmptyBuffer) {
+TEST(UtilityTest, TestSha256DigestWithEmptyBuffer) {
   const Buffer::OwnedImpl buffer;
   const auto digest = Utility::getSha256Digest(buffer);
   EXPECT_EQ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             Hex::encode(digest));
 }
 
-TEST(UtilityTest, DISABLED_TestSha256DigestGrowingBuffer) {
+TEST(UtilityTest, TestSha256DigestGrowingBuffer) {
   // Adding multiple slices to the buffer
   Buffer::OwnedImpl buffer("slice 1");
   auto digest = Utility::getSha256Digest(buffer);
@@ -42,18 +41,18 @@ TEST(UtilityTest, DISABLED_TestSha256DigestGrowingBuffer) {
             Hex::encode(digest));
 }
 
-TEST(UtilityTest, DISABLED_TestSha256Hmac) {
+TEST(UtilityTest, TestSha256Hmac) {
   const std::string key = "key";
   auto hmac = Utility::getSha256Hmac(std::vector<uint8_t>(key.begin(), key.end()), "test data");
   EXPECT_EQ("087d9eb992628854842ca4dbf790f8164c80355c1e78b72789d830334927a84c", Hex::encode(hmac));
 }
 
-TEST(UtilityTest, DISABLED_TestSha256HmacWithEmptyArguments) {
+TEST(UtilityTest, TestSha256HmacWithEmptyArguments) {
   auto hmac = Utility::getSha256Hmac(std::vector<uint8_t>(), "");
   EXPECT_EQ("b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad", Hex::encode(hmac));
 }
 
-TEST(UtilityTest, DISABLED_TestImportPublicKey) {
+TEST(UtilityTest, TestImportPublicKey) {
   auto key = "30820122300d06092a864886f70d01010105000382010f003082010a0282010100a7471266d01d160308d"
              "73409c06f2e8d35c531c458d3e480e9f3191847d062ec5ccff7bc51e949d5f2c3540c189a4eca1e8633a6"
              "2cf2d0923101c27e38013e71de9ae91a704849bff7fbe2ce5bf4bd666fd9731102a53193fe5a9a5a50644"
@@ -62,16 +61,15 @@ TEST(UtilityTest, DISABLED_TestImportPublicKey) {
              "d5af8136a9630a6cc0cde157dc8e00f39540628d5f335b2c36c54c7c8bc3738a6b21acff815405afa28e5"
              "183f550dac19abcf1145a7f9ced987db680e4a229cac75dee347ec9ebce1fc3dbbbb0203010001";
 
-  Common::Crypto::CryptoObjectPtr cryptoPtr(
+  Common::Crypto::CryptoObjectPtr crypto_ptr(
       Common::Crypto::Utility::importPublicKey(Hex::decode(key)));
-  auto wrapper =
-      Common::Crypto::Access::getTyped<Common::Crypto::PublicKeyObject>(*(cryptoPtr.get()));
+  auto wrapper = Common::Crypto::Access::getTyped<Common::Crypto::PublicKeyObject>(*crypto_ptr);
   EVP_PKEY* pkey = wrapper->getEVP_PKEY();
   EXPECT_NE(nullptr, pkey);
 
   key = "badkey";
-  cryptoPtr = Common::Crypto::Utility::importPublicKey(Hex::decode(key));
-  wrapper = Common::Crypto::Access::getTyped<Common::Crypto::PublicKeyObject>(*(cryptoPtr.get()));
+  crypto_ptr = Common::Crypto::Utility::importPublicKey(Hex::decode(key));
+  wrapper = Common::Crypto::Access::getTyped<Common::Crypto::PublicKeyObject>(*crypto_ptr);
   pkey = wrapper->getEVP_PKEY();
   EXPECT_EQ(nullptr, pkey);
 }
@@ -94,9 +92,9 @@ TEST(UtilityTest, TestVerifySignature) {
       "295234f7c14fa46303b7e977d2c89ba8a39a46a35f33eb07a332";
   auto data = "hello";
 
-  Common::Crypto::CryptoObjectPtr cryptoPtr(
+  Common::Crypto::CryptoObjectPtr crypto_ptr(
       Common::Crypto::Utility::importPublicKey(Hex::decode(key)));
-  Common::Crypto::CryptoObject* crypto(cryptoPtr.get());
+  Common::Crypto::CryptoObject* crypto(crypto_ptr.get());
 
   std::vector<uint8_t> text(data, data + strlen(data));
 
@@ -110,8 +108,8 @@ TEST(UtilityTest, TestVerifySignature) {
   EXPECT_EQ(false, result.result_);
   EXPECT_EQ("unknown is not supported.", result.error_message_);
 
-  auto emptyCrypto = new PublicKeyObject();
-  result = Utility::verifySignature(hash_func, *emptyCrypto, sig, text);
+  PublicKeyObject* empty_crypto = new PublicKeyObject();
+  result = Utility::verifySignature(hash_func, *empty_crypto, sig, text);
   EXPECT_EQ(false, result.result_);
   EXPECT_EQ("Failed to initialize digest verify.", result.error_message_);
 

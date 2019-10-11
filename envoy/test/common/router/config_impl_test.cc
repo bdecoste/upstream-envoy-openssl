@@ -31,14 +31,12 @@
 
 using testing::_;
 using testing::ContainerEq;
-using testing::ElementsAreArray;
 using testing::Eq;
 using testing::Matcher;
 using testing::MockFunction;
 using testing::NiceMock;
 using testing::Return;
 using testing::ReturnRef;
-using testing::StrNe;
 
 namespace Envoy {
 namespace Router {
@@ -5762,6 +5760,43 @@ virtual_hosts:
   const auto& retry_policy = config.route(headers, 0)->routeEntry()->retryPolicy();
   const std::vector<uint32_t> expected_codes{100, 200};
   EXPECT_EQ(expected_codes, retry_policy.retriableStatusCodes());
+}
+
+TEST_F(RouteConfigurationV2, RetriableHeaders) {
+  const std::string RetriableHeaders = R"EOF(
+name: RetriableHeaders
+virtual_hosts:
+  - name: regex
+    domains: [idle.lyft.com]
+    routes:
+      - match:
+          safe_regex:
+            google_re2: {}
+            regex: "/regex"
+        route:
+          cluster: some-cluster
+          retry_policy:
+            retriable_headers:
+            - name: ":status"
+              exact_match: "500"
+            - name: X-Upstream-Pushback
+  )EOF";
+
+  TestConfigImpl config(parseRouteConfigurationFromV2Yaml(RetriableHeaders), factory_context_,
+                        true);
+  Http::TestHeaderMapImpl headers = genRedirectHeaders("idle.lyft.com", "/regex", true, false);
+  const auto& retry_policy = config.route(headers, 0)->routeEntry()->retryPolicy();
+  ASSERT_EQ(2, retry_policy.retriableHeaders().size());
+
+  Http::TestHeaderMapImpl expected_0{{":status", "500"}};
+  Http::TestHeaderMapImpl unexpected_0{{":status", "200"}};
+  Http::TestHeaderMapImpl expected_1{{"x-upstream-pushback", "bar"}};
+  Http::TestHeaderMapImpl unexpected_1{{"x-test", "foo"}};
+
+  EXPECT_TRUE(retry_policy.retriableHeaders()[0]->matchesHeaders(expected_0));
+  EXPECT_FALSE(retry_policy.retriableHeaders()[0]->matchesHeaders(unexpected_0));
+  EXPECT_TRUE(retry_policy.retriableHeaders()[1]->matchesHeaders(expected_1));
+  EXPECT_FALSE(retry_policy.retriableHeaders()[1]->matchesHeaders(unexpected_1));
 }
 
 TEST_F(RouteConfigurationV2, UpgradeConfigs) {

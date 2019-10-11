@@ -1,4 +1,4 @@
-workspace(name = "envoy_openssl")
+#workspace(name = "envoy_openssl")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -25,26 +25,28 @@ local_repository(
 )
 
 local_repository(
-  name = "ssl",
-  path = "ssl",
-  repo_mapping = {
-    "@ssl": "@envoy_openssl",
-  },
+    name = "boringssl_compat",
+    path = "boringssl_compat",
 )
 
-load("@envoy//bazel:api_binding.bzl", "envoy_api_binding")
+local_repository(
+    name = "envoy_build_config",
+    path = "envoy_build_config",
+)
+
+load("//bazel:api_binding.bzl", "envoy_api_binding")
 
 envoy_api_binding()
 
-load("@envoy//bazel:api_repositories.bzl", "envoy_api_dependencies")
+load("//bazel:api_repositories.bzl", "envoy_api_dependencies")
 
 envoy_api_dependencies()
 
-load("@envoy//bazel:repositories.bzl", "envoy_dependencies")
+load("//bazel:repositories.bzl", "envoy_dependencies")
 
 envoy_dependencies()
 
-load("@envoy//bazel:dependency_imports.bzl", "envoy_dependency_imports")
+load("//bazel:dependency_imports.bzl", "envoy_dependency_imports")
 
 envoy_dependency_imports()
 

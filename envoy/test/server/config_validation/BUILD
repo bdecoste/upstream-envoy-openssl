@@ -30,7 +30,7 @@ envoy_cc_test(
         "//include/envoy/upstream:upstream_interface",
         "//source/common/api:api_lib",
         "//source/common/stats:stats_lib",
-        "@ssl//:tls_context_lib",
+        "//source/extensions/transport_sockets/tls:context_lib",
         "//source/server/config_validation:cluster_manager_lib",
         "//source/server/config_validation:dns_lib",
         "//test/mocks/access_log:access_log_mocks",
@@ -59,7 +59,7 @@ envoy_cc_test(
     deps = [
         "//source/extensions/filters/http/router:config",
         "//source/extensions/filters/network/http_connection_manager:config",
-        "@ssl//:tls_config",
+        "//source/extensions/transport_sockets/tls:config",
         "//source/server/config_validation:server_lib",
         "//test/integration:integration_lib",
         "//test/mocks/server:server_mocks",

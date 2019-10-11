@@ -34,12 +34,6 @@
 
 #include "gtest/gtest.h"
 
-using testing::_;
-using testing::AnyNumber;
-using testing::HasSubstr;
-using testing::Invoke;
-using testing::Not;
-
 namespace Envoy {
 namespace {
 
@@ -385,8 +379,6 @@ void HttpIntegrationTest::checkSimpleRequestSuccess(uint64_t expected_request_si
 void HttpIntegrationTest::testRouterRequestAndResponseWithBody(
     uint64_t request_size, uint64_t response_size, bool big_header,
     ConnectionCreationFunction* create_connection) {
-
-std::cerr << "!!!!!!!!!!!!!!!!!!!!!! testRouterRequestAndResponseWithBody\n";
   initialize();
   codec_client_ = makeHttpConnection(
       create_connection ? ((*create_connection)()) : makeClientConnection((lookupPort("http"))));

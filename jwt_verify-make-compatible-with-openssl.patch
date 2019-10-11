@@ -18,8 +18,8 @@ index 288ad80..e136055 100644
          "//external:abseil_time",
          "//external:protobuf",
          "//external:ssl",
-+        "@envoy_openssl//boringssl_compat:bssl_compat_cbs_lib",
-+        "@envoy_openssl//boringssl_compat:bssl_compat_lib",
++        "@boringssl_compat//:bssl_compat_cbs_lib",
++        "@boringssl_compat//:bssl_compat_lib",
      ],
  )
  
@@ -32,7 +32,7 @@ index f426687..e15512a 100644
  #include "openssl/evp.h"
  
 +#ifndef OPENSSL_IS_BORINGSSL
-+#include "boringssl_compat/bssl.h"
++#include "bssl.h"
 +#endif
 +
  namespace google {
@@ -47,7 +47,7 @@ index 0603294..6f5576b 100644
  #include "openssl/sha.h"
  
 +#ifndef OPENSSL_IS_BORINGSSL
-+#include "boringssl_compat/cbs.h"
++#include "cbs.h"
 +using namespace Envoy::Extensions::Common::Cbs;
 +#endif
 +

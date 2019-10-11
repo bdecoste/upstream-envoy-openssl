@@ -479,6 +479,7 @@ private:
     Tracing::OperationName operationName() const override;
     const std::vector<Http::LowerCaseString>& requestHeadersForTags() const override;
     bool verbose() const override;
+    uint32_t maxPathTagLength() const override;
 
     // ScopeTrackedObject
     void dumpState(std::ostream& os, int indent_level = 0) const override {
@@ -496,10 +497,9 @@ private:
 
     void traceRequest();
 
-    // Updates the snapped_route_config_ if scope found, or ends the stream by
-    // sending local reply.
-    // Returns true if scoped route config snapped, false otherwise.
-    bool snapScopedRouteConfig();
+    // Updates the snapped_route_config_ (by reselecting scoped route configuration), if a scope is
+    // not found, snapped_route_config_ is set to Router::NullConfigImpl.
+    void snapScopedRouteConfig();
 
     void refreshCachedRoute();
 

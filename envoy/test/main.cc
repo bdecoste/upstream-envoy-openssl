@@ -27,11 +27,6 @@ int main(int argc, char** argv) {
                                      Envoy::TestEnvironment::getCheckedEnvVar("TEST_WORKSPACE")),
                                     1);
 
-//  Envoy::TestEnvironment::setEnvVar("TEST_RUNDIR",
-//                                    (Envoy::TestEnvironment::getCheckedEnvVar("TEST_SRCDIR") + "/" + 
-//                                     Envoy::TestEnvironment::getCheckedEnvVar("TEST_RUNDIR")), 
-//                                    1);
-
   // Select whether to test only for IPv4, IPv6, or both. The default is to
   // test for both. Options are {"v4only", "v6only", "all"}. Set
   // ENVOY_IP_TEST_VERSIONS to "v4only" if the system currently does not support IPv6 network

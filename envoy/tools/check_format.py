@@ -72,6 +72,7 @@ X_ENVOY_USED_DIRECTLY_REGEX = re.compile(r'.*\"x-envoy-.*\".*')
 PROTO_OPTION_JAVA_PACKAGE = "option java_package = \""
 PROTO_OPTION_JAVA_OUTER_CLASSNAME = "option java_outer_classname = \""
 PROTO_OPTION_JAVA_MULTIPLE_FILES = "option java_multiple_files = "
+PROTO_OPTION_GO_PACKAGE = "option go_package = \""
 
 # yapf: disable
 PROTOBUF_TYPE_ERRORS = {
@@ -499,6 +500,9 @@ def checkSourceLine(line, file_path, reportError):
     if invalid_construct in line:
       reportError("term %s should be replaced with standard library term %s" %
                   (invalid_construct, valid_construct))
+  # Do not include the virtual_includes headers.
+  if re.search("#include.*/_virtual_includes/", line):
+    reportError("Don't include the virtual includes headers.")
 
   # Some errors cannot be fixed automatically, and actionable, consistent,
   # navigable messages should be emitted to make it easy to find and fix
@@ -623,6 +627,17 @@ def checkBuildPath(file_path):
     command = "%s %s | diff %s -" % (ENVOY_BUILD_FIXER_PATH, file_path, file_path)
     error_messages += executeCommand(command, "envoy_build_fixer check failed", file_path)
 
+  if isBuildFile(file_path) and file_path.startswith(args.api_prefix + "envoy"):
+    found = False
+    finput = fileinput.input(file_path)
+    for line in finput:
+      if "api_proto_package(" in line:
+        found = True
+        break
+    finput.close()
+    if not found:
+      error_messages += ["API build file does not provide api_proto_package()"]
+
   command = "%s -mode=diff %s" % (BUILDIFIER_PATH, file_path)
   error_messages += executeCommand(command, "buildifier check failed", file_path)
   error_messages += checkFileContents(file_path, checkBuildLine)
@@ -672,6 +687,9 @@ def checkSourcePath(file_path):
                                                 "Java proto option 'java_outer_classname' not set")
       error_messages += errorIfNoSubstringFound("\n" + PROTO_OPTION_JAVA_MULTIPLE_FILES, file_path,
                                                 "Java proto option 'java_multiple_files' not set")
+    with open(file_path) as f:
+      if PROTO_OPTION_GO_PACKAGE in f.read():
+        error_messages += ["go_package option should not be set in %s" % file_path]
   return error_messages
 
 
